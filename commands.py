@@ -53,12 +53,12 @@ def DecodeDateTime(datum):
     return datum
 
 def save():
-    if os.environ.get('CONVO_JSONBIN_ID'):
-        url = f'https://api.jsonbin.io/b/{os.environ.get("CONVO_JSONBIN_ID")}'
+    if os.environ.get('HEY_JSONBIN_ID'):
+        url = f'https://api.jsonbin.io/b/{os.environ.get("HEY_JSONBIN_ID")}'
         headers = {
             'Content-Type': 'application/json',
             'versioning': 'false',
-            'secret-key': os.environ.get('CONVO_JSONBIN_KEY')
+            'secret-key': os.environ.get('HEY_JSONBIN_KEY')
         }
         req = requests.put(url, data=json.dumps(data, cls=DateTimeEncoder, indent=2), headers=headers)
     else:
@@ -90,10 +90,10 @@ def query_data(datatype=None, state=None):
 app = App()
 
 data = []
-if os.environ.get('CONVO_JSONBIN_ID'):
-    url = f'https://api.jsonbin.io/b/{os.environ.get("CONVO_JSONBIN_ID")}'
+if os.environ.get('HEY_JSONBIN_ID'):
+    url = f'https://api.jsonbin.io/b/{os.environ.get("HEY_JSONBIN_ID")}'
     headers = {
-        'secret-key': os.environ.get('CONVO_JSONBIN_KEY')
+        'secret-key': os.environ.get('HEY_JSONBIN_KEY')
     }
     req = requests.get(url, headers=headers)
     data = json.loads(req.text, object_hook=DecodeDateTime)
