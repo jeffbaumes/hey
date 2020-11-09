@@ -9,7 +9,7 @@ def cli():
         return
     print('sup')
     while True:
-        command = input('>>>> ')
+        command = input('>>>> hey ')
         response = app.serve(command)
         print(response)
         if response == 'bye':

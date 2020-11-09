@@ -109,6 +109,27 @@ else:
 def hello_user(name):
     return 'hello {}'.format(name)
 
+@app.route('i should maybe do <task_num>')
+@app.route('i might want to do <task_num>')
+@app.route('i maybe want to do <task_num>')
+@app.route('i should maybe do task <task_num>')
+@app.route('i might want to do task <task_num>')
+@app.route('i maybe want to do task <task_num>')
+def maybe_do_existing_task(task_num):
+    task_num = int(task_num)
+    task = data[task_num]
+    update_state(task, 'maybe')
+    save()
+    return f'got it. i set that task to maybe'
+
+@app.route('i should maybe <task>')
+@app.route('i might want to <task>')
+@app.route('i maybe want to <task>')
+def maybe(task):
+    data.append(dict(type='task', name=task, state='maybe', updated=datetime.datetime.now()))
+    save()
+    return f'sure, i added a maybe task. "{len(data) - 1}: {task}"'
+
 @app.route('i want to <task>')
 @app.route('i need to <task>')
 @app.route('i should <task>')
@@ -130,8 +151,23 @@ def completed_list():
         f'{i}: {d["name"]}' for i, d in query_data('task', 'done')
     ]))
 
+@app.route('what am i waiting on')
+@app.route('what am i waiting for')
+def waiting_list():
+    return 'you are waiting for:\n{}'.format('\n'.join([
+        f'{i}: {d["name"]} ({d["who"]})' for i, d in query_data('task', 'waiting')
+    ]))
+
+@app.route('what should i maybe do')
+def todo_list():
+    return 'you should maybe:\n{}'.format('\n'.join([
+        f'{i}: {d["name"]}' for i, d in query_data('task', 'maybe')
+    ]))
+
 @app.route('i did <task_num>')
 @app.route('i did task <task_num>')
+@app.route('<task_num> is done')
+@app.route('task <task_num> is done')
 def complete_task(task_num):
     task_num = int(task_num)
     task = data[task_num]
@@ -141,10 +177,12 @@ def complete_task(task_num):
 
 @app.route('i didn\'t do <task_num>')
 @app.route('i didn\'t do task <task_num>')
+@app.route('<task_num> is not done')
+@app.route('task <task_num> is not done')
 def uncomplete_task(task_num):
     task_num = int(task_num)
     task = data[task_num]
-    update_state(task, 'do')
+    update_state(task, 'waiting' if task.get('who') else 'do')
     save()
     return f'oh ok fine, i unchecked task "{task["name"]}"'
 
@@ -160,12 +198,38 @@ def open_link(task_num):
 
 @app.route('link for <task_num> is <url>')
 @app.route('the link for <task_num> is <url>')
+@app.route('task <task_num> has link <url>')
 def set_link(task_num, url):
     task_num = int(task_num)
     task = data[task_num]
     task['link'] = url
     save()
     return 'got it. the link is updated'
+
+@app.route('<who> needs to do <task_num>')
+@app.route('i need <who> to do <task_num>')
+@app.route('i\'m waiting for <who> to do <task_num>')
+@app.route('<who> should do <task_num>')
+@app.route('<who> needs to do task <task_num>')
+@app.route('i need <who> to do task <task_num>')
+@app.route('i\'m waiting for <who> to do task <task_num>')
+@app.route('<who> should do task <task_num>')
+def waiting_on_existing_task(who, task_num):
+    task_num = int(task_num)
+    task = data[task_num]
+    task['who'] = who
+    update_state(task, 'waiting')
+    save()
+    return f'got it. you are waiting for {who} to complete that task'
+
+@app.route('<who> needs to <task>')
+@app.route('i need <who> to <task>')
+@app.route('i\'m waiting for <who> to <task>')
+@app.route('<who> should <task>')
+def waiting(who, task):
+    data.append(dict(type='task', name=task, who=who, state='waiting', updated=datetime.datetime.now()))
+    save()
+    return f'sure, i recorded this new task that you\'re waiting for. "{len(data) - 1}: {task}"'
 
 @app.route('bye')
 def bye():

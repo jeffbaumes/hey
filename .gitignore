@@ -1,3 +1,6 @@
 __pycache__
+.env_vars
 .mypy_cache
 *.egg-info
+data.json
+.vscode
