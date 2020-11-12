@@ -11,7 +11,7 @@ class DateTimeEncoder(json.JSONEncoder):
 
 
 def DecodeDateTime(datum):
-    for time_field in ['created', 'completed', 'due']:
+    for time_field in ['updated']:
         if time_field in datum:
             datum[time_field] = datetime.datetime.fromisoformat(datum[time_field])
     return datum
