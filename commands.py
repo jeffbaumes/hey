@@ -177,8 +177,8 @@ def set_context(task_num, context):
 def set_context(context):
     return 'for {} you should:\n{}'.format(context, print_tasks(query_data('task', state='do', context=context)))
 
-@app.route(r'<who> (should|needs to) do( task)? <task_num>')
-@app.route(r'(i need|i\'m waiting for) <who> to do( task)? <task_num>')
+@app.route(r'<who> (should|needs to) do task <task_num>')
+@app.route(r'(i need|i\'m waiting for) <who> to do task <task_num>')
 def waiting_on_existing_task(who, task_num):
     task_num = int(task_num)
     task = data[task_num]
@@ -195,6 +195,26 @@ def waiting(who, task_name):
     data.append(task)
     save(data)
     return f'sure, i recorded this new task that you\'re waiting for. "{len(data) - 1}: {task_name}"'
+
+@app.route(r'how long has it been since <time>')
+def time_lapsed(time):
+    parsed = None
+    try:
+        fmt = '%H:%M'
+        parsed = datetime.datetime.strptime(time, fmt)
+    except:
+        try:
+            fmt = '%H:%M'
+            parsed = datetime.datetime.strptime(time, fmt)
+        except:
+            pass
+
+    if parsed:
+        now = datetime.datetime.now()
+        start = datetime.datetime(now.year, now.month, now.day, parsed.hour, parsed.minute)
+        return str(now - start)
+
+    return 'i don\'t understand that date format'
 
 @app.route(r'bye')
 def bye():
