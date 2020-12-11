@@ -220,6 +220,12 @@ def time_lapsed(time):
 def bye():
     return 'bye'
 
+@app.route(r'help')
+def help():
+    routes = [(route[2], route[1].__name__.replace('_', ' ')) for route in app.routes]
+    route_table = tabulate(routes, headers=['statement', 'operation'])
+    return f'here is what i know how to respond to:\n{route_table}'
+
 @app.route(r'<any>')
 def default(any):
-    return 'ok... not really sure what you mean by that'
+    return 'ok... not really sure what you mean by that\nsay "help" to get some help'
