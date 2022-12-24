@@ -44,6 +44,6 @@ def load():
             with open('data.json') as f:
                 data = json.load(f, object_hook=DecodeDateTime)
         except FileNotFoundError:
-            data = {}
+            data = []
             save(data)
     return data
